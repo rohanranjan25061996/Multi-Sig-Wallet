@@ -5,7 +5,7 @@ import AddNewOwnerData from "./NewOwner";
 const AllOwnerList = (props) => {
 
     const {data, newOwner, value, setNewOwner, addNewOwner, handelSubmit, remove} = props
-
+    // console.log("user", user.toLowerCase())
     return(
         <>
         <div className={css.all_ownerlist_main}>
@@ -19,7 +19,7 @@ const AllOwnerList = (props) => {
                 <div className={css.all_ownerlist_conatiner_2}>
                 {data && data.map((item) => <div className={css.all_ownerlist_data}>
                     <div>{item}</div>
-                    <div className={css.remove_owner} onClick={() => remove(item)}>remove</div>
+                    {<div className={css.remove_owner} onClick={() => remove(item)}>remove</div>}
                 </div>)}
                 </div>
             </div>

@@ -66,3 +66,13 @@ export const refineTxData = (data) => {
         return arr
     }
 }
+
+export const checkOwner = (data, user) => {
+    let flag = false
+    data?.forEach((item) => {
+        if(item === user){
+            flag = true
+        }
+    })
+    return flag
+}

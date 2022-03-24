@@ -2,7 +2,7 @@ import React, {useState} from "react"
 import { AuthContext } from "../contextApi/Auth"
 import css from "./styles/index.module.css"
 import {useMoralis} from "react-moralis"
-import {getMoralisOption, getProviderWallet, refineTxData} from "../utils/helper"
+import {checkOwner, getMoralisOption, getProviderWallet, refineTxData} from "../utils/helper"
 import AllOwnerList from "./AllOwnerList"
 import AllTransaction from "./AllTransaction"
 
@@ -22,11 +22,32 @@ const Wallet = () => {
     const [newTx, setNewTx] = useState(init)
     const [newTxFlag, setNewTxFlag] = React.useState(false)
     const [loading, setLoading] = useState(false)
+    const [limit, setLimit] = useState(0)
     const {logout} = useMoralis();
     React.useEffect(() => {
         getMultiSigWallet();
         getAllTxData();
+        getLimit()
     }, [])
+
+    const getLimit = async () => {
+        setLoading(true)
+        try{
+            const providerWallet = getProviderWallet()
+            const apprLimit = await providerWallet.approversLimit();
+            let ll = apprLimit.toNumber();
+            setLimit(ll)
+            setLoading(false)
+        }catch(error){
+            setLoading(false)
+            let ok = JSON.stringify(error)
+            let parseOk = JSON.parse(ok)
+            const {error: txError} = parseOk
+            const {message} = txError
+            alert(`Error: ${message}`)
+            console.log("==========error is getLimit function========", parseOk)
+        }
+    }
 
     const getMultiSigWallet = async () => {
         try{
@@ -57,7 +78,7 @@ const Wallet = () => {
             const {error: txError} = parseOk
             const {message} = txError
             alert(`Error: ${message}`)
-            console.log("==========error is getMultiSigWallet function========", error)
+            console.log("==========error is getMultiSigWallet function========", parseOk)
         }
     }
 
@@ -91,11 +112,12 @@ const Wallet = () => {
             }
         }catch(error){
             setLoading(false)
-            let errorMesaage = error.message
-            errorMesaage = errorMesaage.split(" ")
-            let code = errorMesaage[errorMesaage.length-2]
-            let value = errorMesaage[errorMesaage.length-3]
-             alert(`Error, ${code} ${value}`)
+            let ok = JSON.stringify(error)
+            let parseOk = JSON.parse(ok)
+            const {error: txError} = parseOk
+            const {message} = txError
+            alert(`Error: ${message}`)
+            console.log("=========addNewOwner==============", error)
         }
     }
 
@@ -138,7 +160,7 @@ const Wallet = () => {
             const {error: txError} = parseOk
             const {message} = txError
             alert(`Error: ${message}`)
-            console.log("==========error is getAllTxData function========", error)
+            console.log("==========error is getAllTxData function========", parseOk)
         }
     }
 
@@ -223,10 +245,10 @@ const Wallet = () => {
             {loading && <div className={css.loading}> Processing with request, please wait.......! </div>}
            {allOwnerList && allOwnerList.length !== 0 &&  <AllOwnerList data = {allOwnerList} newOwner = {addNewOwnerFlag} 
             setNewOwner = {setNewOwnervalue} value = {newOwnerValue} addNewOwner = {addNewOwnerFlagData}
-            handelSubmit = {addNewOwner} remove = {removeOwnerFromList} />}
+            handelSubmit = {addNewOwner} remove = {removeOwnerFromList} user = {userAddress} />}
             <AllTransaction data = {allTx} newTx = {newTxFlag} handelChange = {handelChange} handelCancel = {addNewTx} 
-            handelSubmit = {submitNewTransaction} form = {newTx} onClickNewTx = {addNewTx} pending = {allOwnerList.length}
-            approve = {approveTransaction} completedTx = {completeTheTx} />
+            handelSubmit = {submitNewTransaction} form = {newTx} onClickNewTx = {addNewTx} pending = {limit}
+            approve = {approveTransaction} completedTx = {completeTheTx}  />
         </div>
         </>
     )

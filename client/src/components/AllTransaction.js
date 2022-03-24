@@ -18,7 +18,7 @@ const AllTransaction = (props) => {
                 <div className={css.all_tx_conatiner_2}>
                 <h1>All Tx List: {data && data.length}</h1>
                 </div>
-                <div className={css.all_tx_conatiner_2}>
+                {data && data.length !== 0 && <div className={css.all_tx_conatiner_2}>
                     <table>
                         <tr>
                             <th>Transaction Id</th>
@@ -42,7 +42,7 @@ const AllTransaction = (props) => {
                             </td>
                         </tr>)}
                     </table>
-                </div>
+                </div>}
             </div>
         </div>
         </>
