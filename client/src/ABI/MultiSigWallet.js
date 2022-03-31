@@ -48,7 +48,7 @@ export const MSWABI = [
     ],
     "name": "executeTransaction",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {

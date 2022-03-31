@@ -117,15 +117,15 @@ contract MultiSigner {
         tm.limit += 1;
     }
 
-    function executeTransaction(uint _txId) public onlyOwner txExits(_txId) notExecuted(_txId){
+    function executeTransaction(uint _txId) public onlyOwner txExits(_txId) notExecuted(_txId) payable{
         Transaction storage txd = transactions[_txId];
         require(txd.limit >= approversLimit, "connot execute, some approver's not approve transaction !");
-        txd.executed = true;
         uint amount = txd.value;
         address payable to = txd.to;
         (bool sent, ) = to.call{value: amount}("");
         require(sent, "transfer failed");
         Temp storage tm = temp[_txId];
+        txd.executed = true;
         tm.executed = true;
         // to.transfer(amount);
     }

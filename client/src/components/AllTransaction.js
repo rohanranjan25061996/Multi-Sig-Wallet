@@ -4,9 +4,10 @@ import css from "./styles/index.module.css";
 import {encryptData} from "../utils/helper"
 
 const AllTransaction = (props) => {
-
     const {data, newTx, handelChange, handelSubmit, handelCancel, form, onClickNewTx, 
         pending, approve, completedTx} = props
+
+        // console.log("data, pending => ", data, pending)
 
     return(
         <>
@@ -26,19 +27,20 @@ const AllTransaction = (props) => {
                             <th>Approve By</th>
                             <th>Pending By</th>
                             <th>Status</th>
-                            <th>Amount(gwei)</th>
+                            <th>Amount(wei)</th>
                             <th>Action</th>
                         </tr>
                         {data && data.map((item) => <tr key={item.id}>
                             <td>{encryptData(item.id)}</td>
                             <td>{item.to}</td>
                             <td>{item.limit}</td>
-                            <td>{pending - item.limit}</td>
+                            <td>{!item.executed ? pending - item.limit < 0 ? 0 : pending - item.limit : 0}</td>
                             <td>{item.executed ? 'Completed' : 'Pending'}</td>
                             <td>{item.value}</td>
                             <td>
-                                <div className={css.add_owner} 
-                                onClick={item.limit == pending ? () => completedTx(item.id) : () => approve(item.id)}>{item.limit == pending ? 'submit' : 'approve'}</div>
+                                {!item.executed ? <div className={css.add_owner} 
+                                onClick={item.limit == pending ? () => completedTx(item.id) : () => approve(item.id)}>{item.limit == pending ? 'submit tx' : 'approve tx'}</div>
+                            : <div className={css.add_owner}>done</div>}
                             </td>
                         </tr>)}
                     </table>

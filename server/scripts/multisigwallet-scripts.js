@@ -1,6 +1,6 @@
 const main = async () => {
 
-    // contract address 0x57f90e954D4214D78bE63D3E1B80FE6762fDD95f
+    // contract address 0xD693b2dB580fcC70FD7cF00301B174558E7F84dC
     const MultiSigner = await ethers.getContractFactory("MultiSigner");
     const wallet = await MultiSigner.deploy();
 

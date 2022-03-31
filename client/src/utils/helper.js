@@ -76,3 +76,12 @@ export const checkOwner = (data, user) => {
     })
     return flag
 }
+
+export const getUserBalance = async (userAddress) => {
+    let provider = getProvider();
+    let bal;
+    await provider.getBalance(userAddress).then((balance) => {
+        bal = ethers.utils.formatEther(balance)
+    })
+    return bal
+}

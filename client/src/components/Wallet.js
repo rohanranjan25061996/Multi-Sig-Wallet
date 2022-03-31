@@ -1,8 +1,8 @@
 import React, {useState} from "react"
 import { AuthContext } from "../contextApi/Auth"
 import css from "./styles/index.module.css"
-import {useMoralis} from "react-moralis"
-import {checkOwner, getMoralisOption, getProviderWallet, refineTxData} from "../utils/helper"
+import {useMoralis, useWeb3Transfer} from "react-moralis"
+import {checkOwner, getMoralisOption, getProviderWallet, getUserBalance, refineTxData} from "../utils/helper"
 import AllOwnerList from "./AllOwnerList"
 import AllTransaction from "./AllTransaction"
 
@@ -12,7 +12,6 @@ const init = {
 }
 
 const Wallet = () => {
-
     const {Moralis} = useMoralis();
     const {setUserAddress, handelAuth, userAddress} = React.useContext(AuthContext)
     const [allOwnerList, setAllOwnerList] = useState([])
@@ -64,10 +63,22 @@ const Wallet = () => {
                 await createWallet.wait();
 
                 const getOwnerArr = await providerWallet.getAllOwnersList();
+                await getLimit();
                 setAllOwnerList(getOwnerArr)
                 setLoading(false)
 
             }else{
+                // let index = ownerArr.indexof(userAddress)
+                // if(index === -1){
+                //     let payload = {
+                //         _add: userAddress
+                //     }
+                //     const option = getMoralisOption('addOwner', payload)
+                //     const add = await Moralis.executeFunction(option)
+                //     await add.wait();
+                //     await getMultiSigWallet();
+                // }
+                await getLimit()
                 setAllOwnerList(ownerArr)
                 setLoading(false)
             }
@@ -139,7 +150,7 @@ const Wallet = () => {
             const {error: txError} = parseOk
             const {message} = txError
             alert(`Error: ${message}`)
-            console.log("==========error is removeOwnerFromList function========", error)
+            console.log("==========error is removeOwnerFromList function========", parseOk)
         }
     }
 
@@ -157,9 +168,9 @@ const Wallet = () => {
         }catch(error){
             let ok = JSON.stringify(error)
             let parseOk = JSON.parse(ok)
-            const {error: txError} = parseOk
-            const {message} = txError
-            alert(`Error: ${message}`)
+            // const {error: txError} = parseOk
+            // const {message} = txError
+            // alert(`Error: ${message}`)
             console.log("==========error is getAllTxData function========", parseOk)
         }
     }
@@ -180,12 +191,13 @@ const Wallet = () => {
             }
         }catch(error){
             setLoading(false)
+            console.log("==========error is submitNewTransaction function========", error)
             let ok = JSON.stringify(error)
             let parseOk = JSON.parse(ok)
-            const {error: txError} = parseOk
-            const {message} = txError
-            alert(`Error: ${message}`)
-            console.log("==========error is submitNewTransaction function========", error)
+            // const {error: txError} = parseOk
+            // const {message} = txError
+            // alert(`Error: ${message}`)
+            console.log("==========error is submitNewTransaction function========", parseOk)
         }
     }
 
@@ -217,15 +229,25 @@ const Wallet = () => {
             let payload = {
                 _txId: txId,
             }
-            const option = getMoralisOption('executeTransaction', payload);
-            const exe = await Moralis.executeFunction(option);
-            await exe.wait();
-            await getAllTxData();
-            setLoading(false)
+            const temp = allTx?.filter((item) => item.id == txId)
+            const {value} = temp[0]
+            let currentBal = await getUserBalance(userAddress)
+            console.log("======currentBal, nowPay ========== ", (currentBal * Math.pow(10, 18)), +value)
+            if((+currentBal * Math.pow(10, 18)) > +value){
+                const option = getMoralisOption('executeTransaction', payload);
+                const exe = await Moralis.executeFunction({...option, msgValue:value});
+                await exe.wait();
+                await getAllTxData();
+                setLoading(false)
+            }else{
+                setLoading(false)
+                alert(`Insufficient fund in ${userAddress} account`)
+            }
         }catch(error){
             setLoading(false)
             let ok = JSON.stringify(error)
             let parseOk = JSON.parse(ok)
+            console.log("============parse ok ========", parseOk)
             const {error: txError} = parseOk
             const {message} = txError
             alert(`Error: ${message}`)
